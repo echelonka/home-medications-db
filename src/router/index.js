@@ -6,6 +6,7 @@ Vue.use(VueRouter)
 
 import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
+import Medications from '@/pages/Dashboard/Medications'
 
 const router = new VueRouter({
   mode: 'history',
@@ -25,7 +26,15 @@ const router = new VueRouter({
       name: 'Dashboard',
       meta: {
         requiresAuth: true
-      }
+      },
+      redirect: { name: 'Medications' },
+      children: [
+        {
+          path: '/dashboard/medications',
+          component: Medications,
+          name: 'Medications'
+        }
+      ]
     }
   ]
 })
@@ -34,7 +43,7 @@ router.beforeEach((to, from, next) => {
   const currentUser = firebase.auth().currentUser
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   if (requiresAuth && !currentUser) next('login')
-  else if (!requiresAuth && currentUser) next('dashboard')
+  else if (!requiresAuth && currentUser) next('dashboard/medications')
   else next()
 })
 

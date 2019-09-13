@@ -3,21 +3,36 @@ import VueMaterial from 'vue-material'
 import Vuelidate from 'vuelidate'
 import 'vue-material/dist/vue-material.min.css'
 import 'vue-material/dist/theme/default.css'
-import router from './router'
+import router from '@/router'
+import store from '@/store'
 import firebase from 'firebase/app'
 import 'firebase/firestore'
+import { firestorePlugin } from 'vuefire'
 import config from '../config'
 
 import App from '@/App.vue'
-
-export const db = firebase.initializeApp(config).firestore()
 
 Vue.config.productionTip = false
 
 Vue.use(VueMaterial)
 Vue.use(Vuelidate)
+Vue.use(firestorePlugin)
 
-new Vue({
-  router,
-  render: h => h(App)
-}).$mount('#app')
+export const db = firebase.initializeApp(config).firestore()
+
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    store.dispatch('bindCategories')
+    store.dispatch('bindMedications')
+  } else {
+    store.dispatch('unbindCategories')
+    store.dispatch('unbindMedications')
+    router.replace('/login')
+  }
+
+  new Vue({
+    router,
+    store,
+    render: h => h(App)
+  }).$mount('#app')
+})

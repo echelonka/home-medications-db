@@ -18,6 +18,7 @@
           </md-menu-item>
           <md-menu-item @click="signOut">
             <span>Logout</span>
+            <md-icon>exit_to_app</md-icon>
           </md-menu-item>
         </md-menu-content>
       </md-menu>
@@ -33,14 +34,22 @@
       </md-toolbar>
 
       <md-list>
-        <md-list-item>
-          <md-icon>move_to_inbox</md-icon>
-          <span class="md-list-item-text">Inbox</span>
+        <md-list-item :to="{ name: 'Medications' }">
+          <md-icon>home</md-icon>
+          <span class="md-list-item-text">Home</span>
         </md-list-item>
 
-        <md-list-item>
-          <md-icon>send</md-icon>
-          <span class="md-list-item-text">Sent Mail</span>
+        <md-list-item md-expand :md-expanded.sync="expandCategories">
+          <md-icon>list</md-icon>
+          <span class="md-list-item-text">Categories</span>
+
+          <md-list slot="md-expand">
+            <md-list-item
+              class="md-inset"
+              v-for="category in $store.state.categories"
+              :key="category.id"
+            ><span class="category">{{ category.name }}</span></md-list-item>
+          </md-list>
         </md-list-item>
       </md-list>
     </md-app-drawer>
@@ -57,6 +66,7 @@
   export default {
     name: 'Dashboard',
     data: () => ({
+      expandCategories: false,
       menuVisible: false
     }),
     methods: {
@@ -72,7 +82,7 @@
     height: 100%;
   }
 
-  .md-app-content {
-    padding: 0;
+  .category {
+    text-transform: capitalize;
   }
 </style>

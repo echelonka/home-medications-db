@@ -18,6 +18,9 @@ Vue.use(VueMaterial)
 Vue.use(Vuelidate)
 Vue.use(firestorePlugin)
 
+Vue.material.locale.dateFormat = 'dd/MM/yyyy'
+Vue.material.locale.firstDayOfAWeek = 1
+
 export const db = firebase.initializeApp(config).firestore()
 
 firebase.auth().onAuthStateChanged(user => {

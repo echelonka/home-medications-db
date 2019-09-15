@@ -1,15 +1,12 @@
 <template>
   <div>
-    <div class="medications-top">
-      <md-button class="md-raised md-primary" @click="showAddDialog = true">Add Medication</md-button>
-    </div>
-    <md-table :value="allMedications(searchString)" md-card>
+    <md-table :value="medicationsByCategory(categoryName, searchString)" md-card>
       <md-table-toolbar>
         <div class="md-toolbar-section-start">
-          <h1 class="md-title">All Medications</h1>
+          <h1 class="md-title category">{{ categoryName }}</h1>
         </div>
         <md-field md-clearable class="md-toolbar-section-end">
-          <md-input placeholder="Search by name..." @input="value => searchString = value"/>
+          <md-input placeholder="Search by name..." @input="value => searchString = value" />
         </md-field>
       </md-table-toolbar>
       <md-table-row slot="md-table-row" slot-scope="{ item }">
@@ -25,34 +22,27 @@
         </md-table-cell>
       </md-table-row>
       <md-table-empty-state md-label="No medications found">
-        <md-button class="md-primary md-raised" @click="showAddDialog = true">Add Medication</md-button>
+<!--        <md-button class="md-primary md-raised" @click="showAddDialog = true">Add Medication</md-button>-->
       </md-table-empty-state>
     </md-table>
-    <AddMedicationDialog v-model="showAddDialog" />
   </div>
 </template>
 
 <script>
-  import AddMedicationDialog from '@/components/AddMedicationDialog'
   import { mapActions, mapGetters } from 'vuex'
   import helpers from '@/mixins/helpers'
 
   export default {
-    name: 'Medications',
-    components: { AddMedicationDialog },
+    name: 'Category',
     mixins: [helpers],
     data: () => ({
-      searchString: null,
-      showAddDialog: false,
-      newMedication: {
-        name: '',
-        category: '',
-        production_date: null,
-        expiration_date: null
-      }
+      searchString: null
     }),
     computed: {
-      ...mapGetters(['allMedications'])
+      ...mapGetters(['medicationsByCategory']),
+      categoryName() {
+        return this.$route.params.category
+      }
     },
     methods: {
       ...mapActions(['deleteMedication']),
@@ -64,13 +54,7 @@
 </script>
 
 <style scoped>
-  .medications-top {
-    margin: 0 0 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .md-card.md-table {
-    margin: 0 0 20px;
+  .category {
+    text-transform: capitalize;
   }
 </style>

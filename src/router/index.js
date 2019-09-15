@@ -7,6 +7,7 @@ Vue.use(VueRouter)
 import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
 import Medications from '@/pages/Dashboard/Medications'
+import Category from '@/pages/Dashboard/Category'
 
 const router = new VueRouter({
   mode: 'history',
@@ -33,6 +34,11 @@ const router = new VueRouter({
           path: '/dashboard/medications',
           component: Medications,
           name: 'Medications'
+        },
+        {
+          path: '/dashboard/medications/:category',
+          component: Category,
+          name: 'Category'
         }
       ]
     }

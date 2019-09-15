@@ -1,10 +1,7 @@
 <template>
-  <md-app>
-    <md-app-toolbar class="md-primary" md-elevation="0">
-      <md-button class="md-icon-button" @click="menuVisible = !menuVisible" v-if="!menuVisible">
-        <md-icon>menu</md-icon>
-      </md-button>
-      <span class="md-title" style="flex: 1">Home Medications</span>
+  <md-app md-waterfall md-mode="fixed">
+    <md-app-toolbar class="md-primary">
+      <span style="flex: 1"></span>
       <md-menu size="auto">
         <md-button class="md-icon-button" md-menu-trigger>
           <md-avatar class="md-avatar-icon">
@@ -24,15 +21,10 @@
       </md-menu>
     </md-app-toolbar>
 
-    <md-app-drawer :md-active.sync="menuVisible" md-persistent="mini">
-      <md-toolbar class="md-transparent" md-elevation="0">
-        <div class="md-toolbar-section-end">
-          <md-button class="md-icon-button md-dense" @click="menuVisible = !menuVisible">
-            <md-icon>keyboard_arrow_left</md-icon>
-          </md-button>
-        </div>
+    <md-app-drawer md-permanent="full">
+      <md-toolbar class="md-primary" md-elevation="0">
+        <span class="md-title">Home Medications</span>
       </md-toolbar>
-
       <md-list>
         <md-list-item :to="{ name: 'Medications' }">
           <md-icon>home</md-icon>
@@ -48,6 +40,7 @@
               class="md-inset"
               v-for="category in $store.state.categories"
               :key="category.id"
+              :to="{ name: 'Category', params: { category: category.name } }"
             ><span class="category">{{ category.name }}</span></md-list-item>
           </md-list>
         </md-list-item>
@@ -66,23 +59,42 @@
   export default {
     name: 'Dashboard',
     data: () => ({
-      expandCategories: false,
-      menuVisible: false
+      expandCategories: false
     }),
-    methods: {
-      signOut () {
-        auth().signOut()
+    watch: {
+      '$route': {
+        immediate: true,
+        handler(newRoute) {
+          if (newRoute.name === 'Category') this.expandCategories = true
+        }
       }
+    },
+    methods: {
+      signOut: () => auth().signOut()
     }
   }
 </script>
 
 <style scoped>
-  .md-app {
-    height: 100%;
-  }
-
   .category {
     text-transform: capitalize;
+  }
+
+  .md-drawer {
+    width: 300px;
+  }
+
+  .md-drawer .md-toolbar {
+    top: 0;
+    position: sticky;
+    z-index: 10;
+  }
+
+  .md-drawer .md-list {
+    max-height: calc(100vh - 64px);
+  }
+
+  .md-app-content {
+    height: calc(100vh - 64px);
   }
 </style>

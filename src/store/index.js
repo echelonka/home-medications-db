@@ -14,7 +14,7 @@ export default new Store({
   },
 
   getters: {
-    allMedications: state => {
+    allMedications: state => searchString => {
       return state.medications.map(medication => {
         const toDate = timestamp => {
           if (!timestamp) return '-'
@@ -36,6 +36,10 @@ export default new Store({
           expiration_date: toDate(medication.expiration_date)
         }
       })
+        .filter(medication => searchString ? medication.name.toLowerCase().startsWith(searchString.toLowerCase()) : true)
+    },
+    medicationsByCategory: (state, getters) => (category, searchString) => {
+      return getters.allMedications(searchString).filter(medication => medication.category.name === category)
     }
   },
 
@@ -45,7 +49,7 @@ export default new Store({
     bindCategories: firestoreAction(({ bindFirestoreRef }) => bindFirestoreRef('categories', db.collection('categories'))),
     unbindCategories: firestoreAction(({ unbindFirestoreRef }) => unbindFirestoreRef('categories')),
 
-    bindMedications: firestoreAction(({ bindFirestoreRef }) => bindFirestoreRef('medications', db.collection('medications'))),
+    bindMedications: firestoreAction(({ bindFirestoreRef }) => bindFirestoreRef('medications', db.collection('medications').orderBy('name'))),
     unbindMedications: firestoreAction(({ unbindFirestoreRef }) => unbindFirestoreRef('medications')),
 
     addMedication: async ({ state }, newMedication) => {

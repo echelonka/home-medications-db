@@ -1,56 +1,76 @@
 <template>
-  <md-app md-waterfall md-mode="fixed">
-    <md-app-toolbar class="md-primary">
-      <span style="flex: 1"></span>
-      <md-menu size="auto">
-        <md-button class="md-icon-button" md-menu-trigger>
-          <md-avatar class="md-avatar-icon">
-            <md-icon>account_circle</md-icon>
-          </md-avatar>
-        </md-button>
-        <md-menu-content>
-          <md-menu-item>
-            <span>Settings</span>
-            <md-icon>settings</md-icon>
-          </md-menu-item>
-          <md-menu-item @click="signOut">
-            <span>Logout</span>
-            <md-icon>exit_to_app</md-icon>
-          </md-menu-item>
-        </md-menu-content>
-      </md-menu>
-    </md-app-toolbar>
-
-    <md-app-drawer md-permanent="full">
-      <md-toolbar class="md-primary" md-elevation="0">
-        <span class="md-title">Home Medications</span>
-      </md-toolbar>
-      <md-list>
-        <md-list-item :to="{ name: 'Medications' }">
-          <md-icon>home</md-icon>
-          <span class="md-list-item-text">Home</span>
-        </md-list-item>
-
-        <md-list-item md-expand :md-expanded.sync="expandCategories">
-          <md-icon>list</md-icon>
-          <span class="md-list-item-text">Categories</span>
-
-          <md-list slot="md-expand">
-            <md-list-item
-              class="md-inset"
+  <v-app id="inspire">
+    <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
+      <v-list dense>
+        <v-list-item-group>
+          <v-list-item :to="{ name: 'Medications' }">
+            <v-list-item-icon>
+              <v-icon>home</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>Home</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+        <v-list-group
+          :prepend-icon="expandCategories ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+          append-icon=""
+          v-model="expandCategories"
+        >
+          <template v-slot:activator>
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>Categories</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </template>
+          <v-list-item-group>
+            <v-list-item
               v-for="category in $store.state.categories"
               :key="category.id"
               :to="{ name: 'Category', params: { category: category.name } }"
-            ><span class="category">{{ category.name }}</span></md-list-item>
-          </md-list>
-        </md-list-item>
-      </md-list>
-    </md-app-drawer>
+            >
+              <v-list-item-content>
+                <v-list-item-title>
+                  <span class="category">{{ category.name }}</span>
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list-group>
+      </v-list>
+    </v-navigation-drawer>
 
-    <md-app-content>
-      <router-view></router-view>
-    </md-app-content>
-  </md-app>
+    <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
+      <v-toolbar-title style="width: 300px">
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+        <span class="hidden-sm-and-down">Home Medications</span>
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-menu bottom left offset-x>
+        <template v-slot:activator="{ on }">
+          <v-btn icon large v-on="on">
+            <v-avatar color="primary">
+              <v-icon dark>mdi-account-circle</v-icon>
+            </v-avatar>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item @click="signOut">
+            <v-list-item-icon>
+              <v-icon>exit_to_app</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Log Out</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </v-app-bar>
+    <v-content>
+      <v-container fluid>
+        <router-view></router-view>
+      </v-container>
+    </v-content>
+  </v-app>
 </template>
 
 <script>
@@ -59,6 +79,7 @@
   export default {
     name: 'Dashboard',
     data: () => ({
+      drawer: false,
       expandCategories: false
     }),
     watch: {

@@ -1,8 +1,6 @@
 import Vue from 'vue'
-import VueMaterial from 'vue-material'
+import vuetify from '@/plugins/vuetify'
 import Vuelidate from 'vuelidate'
-import 'vue-material/dist/vue-material.min.css'
-import 'vue-material/dist/theme/default.css'
 import router from '@/router'
 import store from '@/store'
 import firebase from 'firebase/app'
@@ -14,12 +12,8 @@ import App from '@/App.vue'
 
 Vue.config.productionTip = false
 
-Vue.use(VueMaterial)
 Vue.use(Vuelidate)
 Vue.use(firestorePlugin)
-
-Vue.material.locale.dateFormat = 'dd/MM/yyyy'
-Vue.material.locale.firstDayOfAWeek = 1
 
 export const db = firebase.initializeApp(config).firestore()
 
@@ -36,6 +30,7 @@ firebase.auth().onAuthStateChanged(user => {
   new Vue({
     router,
     store,
+    vuetify,
     render: h => h(App)
   }).$mount('#app')
 })

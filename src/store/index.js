@@ -14,7 +14,7 @@ export default new Store({
   },
 
   getters: {
-    allMedications: state => searchString => {
+    allMedications: state => () => {
       return state.medications.map(medication => {
         const toDate = timestamp => {
           if (!timestamp) return '-'
@@ -32,14 +32,12 @@ export default new Store({
             id: medication.category,
             name: getCategoryName(medication.category)
           },
-          production_date: toDate(medication.production_date),
           expiration_date: toDate(medication.expiration_date)
         }
       })
-        .filter(medication => searchString ? medication.name.toLowerCase().startsWith(searchString.toLowerCase()) : true)
     },
-    medicationsByCategory: (state, getters) => (category, searchString) => {
-      return getters.allMedications(searchString).filter(medication => medication.category.name === category)
+    medicationsByCategory: (state, getters) => category => {
+      return getters.allMedications().filter(medication => medication.category.name === category)
     }
   },
 
@@ -52,17 +50,18 @@ export default new Store({
     bindMedications: firestoreAction(({ bindFirestoreRef }) => bindFirestoreRef('medications', db.collection('medications').orderBy('name'))),
     unbindMedications: firestoreAction(({ unbindFirestoreRef }) => unbindFirestoreRef('medications')),
 
+    // eslint-disable-next-line no-unused-vars
     addMedication: async ({ state }, newMedication) => {
       const medication = {
         ...newMedication,
         created_at: firebase.firestore.FieldValue.serverTimestamp(),
-        production_date: firebase.firestore.Timestamp.fromDate(newMedication.production_date),
-        expiration_date: firebase.firestore.Timestamp.fromDate(newMedication.expiration_date)
+        expiration_date: firebase.firestore.Timestamp.fromDate(new Date(newMedication.expiration_date))
       }
       const medicationId = (await db.collection('medications').add(medication)).id
       return db.collection(`categories/${ medication.category }/medications`).doc(medicationId).set(medication)
     },
 
+    // eslint-disable-next-line no-unused-vars
     deleteMedication: async ({ state }, { id, categoryId }) => {
       await db.collection('medications').doc(id).delete()
       return db.collection(`categories/${ categoryId }/medications`).doc(id).delete()

@@ -1,51 +1,44 @@
 <template>
-  <div class="login md-layout md-alignment-center">
-    <form novalidate class="md-layout md-alignment-center" @submit.prevent="validateUser">
-      <md-card class="md-layout-item md-size-40 md-small-size-90">
-        <md-card-header>
-          <div class="md-title">Log in</div>
-        </md-card-header>
-
-        <md-card-content>
-          <md-field :class="getValidationClass('email')">
-            <label for="email">Email</label>
-            <md-input
-              type="email"
-              name="email"
-              id="email"
-              autocomplete="email"
-              v-model="form.email"
-              :disabled="sending"
-              @input="emailError = null"
-            />
-            <md-icon>mail</md-icon>
-            <span class="md-error" v-if="!$v.form.email.required">The email is required</span>
-            <span class="md-error" v-else-if="!$v.form.email.email">Invalid email</span>
-            <span class="md-error" v-else-if="!$v.form.email.isValid">{{ emailError }}</span>
-          </md-field>
-          <md-field :class="getValidationClass('password')" :md-toggle-password="false">
-            <label for="password">Password</label>
-            <md-input
-              type="password"
-              name="email"
-              id="password"
-              autocomplete="password"
-              v-model="form.password"
-              :disabled="sending"
-              @input="passwordError = null"
-            />
-            <md-icon>lock</md-icon>
-            <span class="md-error" v-if="!$v.form.password.required">The password is required</span>
-            <span class="md-error" v-else-if="!$v.form.password.isValid">{{ passwordError }}</span>
-          </md-field>
-        </md-card-content>
-
-        <md-card-actions>
-          <md-button type="submit" class="md-raised md-primary" :disabled="sending">Log In</md-button>
-        </md-card-actions>
-      </md-card>
-    </form>
-  </div>
+  <v-content>
+    <v-container class="fill-height" fluid>
+      <v-row align="center" justify="center">
+        <v-col cols="12" sm="8" md="4">
+          <v-card class="elevation-6">
+            <v-toolbar color="primary" dark flat>
+              <v-toolbar-title>Log in</v-toolbar-title>
+              <v-spacer></v-spacer>
+            </v-toolbar>
+            <v-card-text>
+              <v-text-field
+                id="email"
+                label="Email"
+                name="email"
+                required
+                :error-messages="emailError || emailErrors"
+                prepend-icon="mail"
+                type="email"
+                v-model="email"
+              ></v-text-field>
+              <v-text-field
+                id="password"
+                label="Password"
+                name="password"
+                required
+                :error-messages="passwordError || passwordErrors"
+                prepend-icon="lock"
+                type="password"
+                v-model="password"
+              ></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn depressed color="primary" @click="validateUser" :loading="sending">Log In</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-content>
 </template>
 
 <script>
@@ -57,41 +50,32 @@
     name: 'Login',
     mixins: [validationMixin],
     data: () => ({
-      form: {
-        email: null,
-        password: null
-      },
+      email: null,
+      password: null,
       sending: false,
       emailError: null,
       passwordError: null
     }),
     validations: {
-      form: {
-        email: {
-          required,
-          email,
-          isValid () {
-            return !this.emailError
-          }
-        },
-        password: {
-          required,
-          isValid () {
-            return !this.passwordError
-          }
-        }
+      email: { required, email },
+      password: { required }
+    },
+    computed: {
+      emailErrors() {
+        const errors = []
+        if (!this.$v.email.$dirty) return errors
+        !this.$v.email.email && errors.push('Must be valid email')
+        !this.$v.email.required && errors.push('Email is required')
+        return errors
+      },
+      passwordErrors() {
+        const errors = []
+        if (!this.$v.password.$dirty) return errors
+        !this.$v.password.required && errors.push('Password is required')
+        return errors
       }
     },
     methods: {
-      getValidationClass (fieldName) {
-        const field = this.$v.form[fieldName]
-
-        if (field) {
-          return {
-            'md-invalid': field.$invalid && field.$dirty
-          }
-        }
-      },
       validateUser () {
         this.$v.$reset()
         this.emailError = null
@@ -105,7 +89,7 @@
       logIn () {
         this.sending = true
 
-        auth().signInWithEmailAndPassword(this.form.email, this.form.password)
+        auth().signInWithEmailAndPassword(this.email, this.password)
           .then(() => this.$router.replace('/dashboard'))
           .catch(err => {
             if (err.code === 'auth/user-not-found') {
@@ -121,7 +105,4 @@
 </script>
 
 <style scoped>
-  .login {
-    height: 100%;
-  }
 </style>

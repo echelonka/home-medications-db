@@ -1,49 +1,53 @@
 <template>
-  <div>
-    <div class="medications-top">
-      <md-button class="md-raised md-primary" @click="showAddDialog = true">Add Medication</md-button>
-    </div>
-    <md-table :value="allMedications(searchString)" md-card>
-      <md-table-toolbar>
-        <div class="md-toolbar-section-start">
-          <h1 class="md-title">All Medications</h1>
-        </div>
-        <md-field md-clearable class="md-toolbar-section-end">
-          <md-input placeholder="Search by name..." @input="value => searchString = value"/>
-        </md-field>
-      </md-table-toolbar>
-      <md-table-row slot="md-table-row" slot-scope="{ item }">
-        <md-table-cell md-label="Name">{{ item.name }}</md-table-cell>
-        <md-table-cell md-label="Category">{{ item.category.name | capitalize }}</md-table-cell>
-        <md-table-cell md-label="Production Date">{{ item.production_date }}</md-table-cell>
-        <md-table-cell md-label="Expiration Date">{{ item.expiration_date }}</md-table-cell>
-        <md-table-cell md-label="Actions">
-          <span @click="onDeleteMedication(item)">
-            <md-icon>delete</md-icon>
-            <md-tooltip>Delete</md-tooltip>
-          </span>
-        </md-table-cell>
-      </md-table-row>
-      <md-table-empty-state md-label="No medications found">
-        <md-button class="md-primary md-raised" @click="showAddDialog = true">Add Medication</md-button>
-      </md-table-empty-state>
-    </md-table>
-    <AddMedicationDialog v-model="showAddDialog" />
-  </div>
+  <v-card>
+    <v-data-table :headers="headers" :items="allMedications()" :search="searchString" disable-pagination hide-default-footer>
+      <template v-slot:top>
+        <v-toolbar flat color="white">
+          <v-toolbar-title>All Medications</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-text-field
+            v-model="searchString"
+            append-icon="search"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" dark class="mb-2" @click.stop="showAddDialog = true">Add Medication</v-btn>
+          <AddMedicationDialog v-model="showAddDialog"/>
+          <ConfimationDialog v-model="showDeleteDialog" @confirm="onDeleteMedication">
+            Are you sure you want to delete medication {{ medicationToDelete.name }}?
+          </ConfimationDialog>
+        </v-toolbar>
+      </template>
+      <template v-slot:item.action="{ item }">
+        <v-icon small @click.stop="openDeleteDialog(item)">delete</v-icon>
+      </template>
+    </v-data-table>
+  </v-card>
 </template>
 
 <script>
   import AddMedicationDialog from '@/components/AddMedicationDialog'
+  import ConfimationDialog from '@/components/ConfimationDialog'
   import { mapActions, mapGetters } from 'vuex'
   import helpers from '@/mixins/helpers'
 
   export default {
     name: 'Medications',
-    components: { AddMedicationDialog },
+    components: { ConfimationDialog, AddMedicationDialog },
     mixins: [helpers],
     data: () => ({
       searchString: null,
       showAddDialog: false,
+      showDeleteDialog: false,
+      medicationToDelete: {},
+      headers: [
+        { text: 'Name', align: 'left', value: 'name', },
+        { text: 'Category', align: 'left', sortable: false, value: 'category.name' },
+        { text: 'Expiration Date', align: 'left', value: 'expiration_date' },
+        { text: 'Actions', value: 'action', sortable: false }
+      ],
       newMedication: {
         name: '',
         category: '',
@@ -56,21 +60,16 @@
     },
     methods: {
       ...mapActions(['deleteMedication']),
-      async onDeleteMedication ({ id, category }) {
-        await this.deleteMedication({ id, categoryId: category.id })
+      async onDeleteMedication (medication = this.medicationToDelete) {
+        await this.deleteMedication({ id: medication.id, categoryId: medication.category.id })
+      },
+      openDeleteDialog(medication) {
+        this.showDeleteDialog = true
+        this.medicationToDelete = medication
       }
     }
   }
 </script>
 
 <style scoped>
-  .medications-top {
-    margin: 0 0 20px;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .md-card.md-table {
-    margin: 0 0 20px;
-  }
 </style>

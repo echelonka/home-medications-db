@@ -1,24 +1,36 @@
 <template>
   <v-card>
-    <v-data-table :headers="headers" :items="medicationsByCategory(categoryName)" :search="searchString" disable-pagination hide-default-footer>
+    <v-data-table
+      :headers="headers"
+      :items="medicationsByCategory(categoryName)"
+      :search="searchString"
+      disable-pagination
+      hide-default-footer
+      single-expand
+      show-expand
+    >
       <template v-slot:top>
-        <v-toolbar flat color="white">
-          <v-toolbar-title>{{ categoryName | capitalize }}</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-text-field
-            v-model="searchString"
-            append-icon="search"
-            label="Search"
-            single-line
-            hide-details
-          ></v-text-field>
-          <ConfimationDialog v-model="showDeleteDialog" @confirm="onDeleteMedication">
-            Are you sure you want to delete medication {{ medicationToDelete.name }}?
-          </ConfimationDialog>
-        </v-toolbar>
+        <v-card class="elevation-0">
+          <v-card-title>{{ categoryName | capitalize }}</v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="searchString"
+              append-icon="search"
+              label="Search"
+              single-line
+              hide-details
+            ></v-text-field>
+          </v-card-text>
+        </v-card>
+        <ConfimationDialog v-model="showDeleteDialog" @confirm="onDeleteMedication">
+          Are you sure you want to delete medication {{ medicationToDelete.name }}?
+        </ConfimationDialog>
       </template>
       <template v-slot:item.action="{ item }">
         <v-icon small @click.stop="openDeleteDialog(item)">delete</v-icon>
+      </template>
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length">{{ item.description || '-' }}</td>
       </template>
     </v-data-table>
   </v-card>
@@ -46,7 +58,7 @@
     }),
     computed: {
       ...mapGetters(['medicationsByCategory']),
-      categoryName() {
+      categoryName () {
         return this.$route.params.category
       }
     },
@@ -55,7 +67,7 @@
       async onDeleteMedication (medication = this.medicationToDelete) {
         await this.deleteMedication({ id: medication.id, categoryId: medication.category.id })
       },
-      openDeleteDialog(medication) {
+      openDeleteDialog (medication) {
         this.showDeleteDialog = true
         this.medicationToDelete = medication
       }

@@ -42,17 +42,13 @@
     </v-navigation-drawer>
 
     <v-app-bar :clipped-left="$vuetify.breakpoint.lgAndUp" app color="blue darken-3" dark>
-      <v-toolbar-title style="width: 300px">
-        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-        <span class="hidden-sm-and-down">Home Medications</span>
-      </v-toolbar-title>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title>Home Medications</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-menu bottom left offset-x>
         <template v-slot:activator="{ on }">
-          <v-btn icon large v-on="on">
-            <v-avatar color="primary">
-              <v-icon dark>mdi-account-circle</v-icon>
-            </v-avatar>
+          <v-btn icon v-on="on">
+            <v-icon dark>mdi-account-circle</v-icon>
           </v-btn>
         </template>
         <v-list>
@@ -83,10 +79,13 @@
       expandCategories: false
     }),
     watch: {
-      '$route': {
+      $route: {
         immediate: true,
-        handler(newRoute) {
-          if (newRoute.name === 'Category') this.expandCategories = true
+        handler (newRoute) {
+          if (newRoute.name === 'Category') {
+            this.drawer = true
+            this.expandCategories = true
+          }
         }
       }
     },
@@ -99,23 +98,5 @@
 <style scoped>
   .category {
     text-transform: capitalize;
-  }
-
-  .md-drawer {
-    width: 300px;
-  }
-
-  .md-drawer .md-toolbar {
-    top: 0;
-    position: sticky;
-    z-index: 10;
-  }
-
-  .md-drawer .md-list {
-    max-height: calc(100vh - 64px);
-  }
-
-  .md-app-content {
-    height: calc(100vh - 64px);
   }
 </style>

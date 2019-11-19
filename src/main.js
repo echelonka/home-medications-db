@@ -9,8 +9,11 @@ import { firestorePlugin } from 'vuefire'
 import config from '../config'
 
 import App from '@/App.vue'
+import ConfirmationDialog from '@/components/ConfirmationDialog'
 
 Vue.config.productionTip = false
+
+Vue.component('ConfirmationDialog', ConfirmationDialog)
 
 Vue.use(Vuelidate)
 Vue.use(firestorePlugin)

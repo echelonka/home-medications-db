@@ -2,7 +2,7 @@
   <v-dialog :value="value" @input="closeDialog" max-width="500px">
     <v-card>
       <v-card-title>
-        <span class="headline">Delete Medication</span>
+        <span class="headline">{{ headline }}</span>
       </v-card-title>
       <v-card-text>
         <slot/>
@@ -23,16 +23,19 @@
       value: {
         type: Boolean,
         required: true
+      },
+      headline: {
+        type: String
       }
     },
     data: () => ({
       isSending: false
     }),
     methods: {
-      closeDialog() {
+      closeDialog () {
         this.$emit('input', false)
       },
-      async onConfirm() {
+      async onConfirm () {
         this.isSending = true
         await this.$emit('confirm')
         this.isSending = false

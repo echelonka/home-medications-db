@@ -2,13 +2,11 @@
   <v-app id="inspire">
     <v-navigation-drawer v-model="drawer" :clipped="$vuetify.breakpoint.lgAndUp" app>
       <v-list dense>
-        <v-list-item-group>
-          <v-list-item :to="{ name: 'Medications' }">
-            <v-list-item-icon>
-              <v-icon>home</v-icon>
-            </v-list-item-icon>
+        <v-list-item-group v-for="route in routes" :key="route.component">
+          <v-list-item :to="{ name: route.component }">
+            <v-list-item-icon><v-icon>{{ route.icon }}</v-icon></v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title>Home</v-list-item-title>
+              <v-list-item-title>{{ route.label }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list-item-group>
@@ -76,13 +74,17 @@
     name: 'Dashboard',
     data: () => ({
       drawer: false,
-      expandCategories: false
+      expandCategories: false,
+      routes: [
+        { component: 'Medications', icon: 'home', label: 'Home' },
+        { component: 'Archive', icon: 'archive', label: 'Archive' }
+      ]
     }),
     watch: {
       $route: {
         immediate: true,
-        handler (newRoute) {
-          if (newRoute.name === 'Category') {
+        handler (currentRoute) {
+          if (currentRoute.name === 'Category') {
             this.drawer = true
             this.expandCategories = true
           }

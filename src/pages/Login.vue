@@ -8,32 +8,34 @@
               <v-toolbar-title>Log in</v-toolbar-title>
               <v-spacer></v-spacer>
             </v-toolbar>
-            <v-card-text>
-              <v-text-field
-                id="email"
-                label="Email"
-                name="email"
-                required
-                :error-messages="emailError || emailErrors"
-                prepend-icon="mail"
-                type="email"
-                v-model="email"
-              ></v-text-field>
-              <v-text-field
-                id="password"
-                label="Password"
-                name="password"
-                required
-                :error-messages="passwordError || passwordErrors"
-                prepend-icon="lock"
-                type="password"
-                v-model="password"
-              ></v-text-field>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn depressed color="primary" @click="validateUser" :loading="sending">Log In</v-btn>
-            </v-card-actions>
+            <v-form @submit.prevent="submitForm">
+              <v-card-text>
+                <v-text-field
+                  id="email"
+                  label="Email"
+                  name="email"
+                  required
+                  :error-messages="emailError || emailErrors"
+                  prepend-icon="mail"
+                  type="email"
+                  v-model="email"
+                ></v-text-field>
+                <v-text-field
+                  id="password"
+                  label="Password"
+                  name="password"
+                  required
+                  :error-messages="passwordError || passwordErrors"
+                  prepend-icon="lock"
+                  type="password"
+                  v-model="password"
+                ></v-text-field>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn depressed color="primary" type="submit" :loading="sending">Log In</v-btn>
+              </v-card-actions>
+            </v-form>
           </v-card>
         </v-col>
       </v-row>
@@ -61,14 +63,14 @@
       password: { required }
     },
     computed: {
-      emailErrors() {
+      emailErrors () {
         const errors = []
         if (!this.$v.email.$dirty) return errors
         !this.$v.email.email && errors.push('Must be valid email')
         !this.$v.email.required && errors.push('Email is required')
         return errors
       },
-      passwordErrors() {
+      passwordErrors () {
         const errors = []
         if (!this.$v.password.$dirty) return errors
         !this.$v.password.required && errors.push('Password is required')
@@ -76,29 +78,28 @@
       }
     },
     methods: {
-      validateUser () {
-        this.$v.$reset()
-        this.emailError = null
-        this.passwordError = null
+      submitForm () {
         this.$v.$touch()
 
         if (!this.$v.$invalid) {
           this.logIn()
         }
       },
-      logIn () {
+      async logIn () {
         this.sending = true
 
-        auth().signInWithEmailAndPassword(this.email, this.password)
-          .then(() => this.$router.replace('/dashboard'))
-          .catch(err => {
-            if (err.code === 'auth/user-not-found') {
-              this.emailError = err.message
-            } else if (err.code === 'auth/wrong-password') {
-              this.passwordError = err.message
-            }
-          })
-          .finally(() => this.sending = false)
+        try {
+          await auth().signInWithEmailAndPassword(this.email, this.password)
+          this.$router.replace('/dashboard')
+        } catch ({ code, message }) {
+          if (code === 'auth/user-not-found') {
+            this.emailError = message
+          } else if (code === 'auth/wrong-password') {
+            this.passwordError = message
+          }
+        } finally {
+          this.sending = false
+        }
       }
     }
   }

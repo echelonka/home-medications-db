@@ -3,11 +3,13 @@ import Vuex, { Store } from 'vuex'
 import { firestoreAction, vuexfireMutations } from 'vuexfire'
 import firebase from 'firebase/app'
 import { db } from '@/main'
+import { toDate } from '@/mixins/helpers'
 
 Vue.use(Vuex)
 
 export default new Store({
   state: {
+    archive: [],
     categories: [],
     medications: [],
     currentUser: null
@@ -15,32 +17,29 @@ export default new Store({
 
   getters: {
     allMedications: state => () => {
-      return state.medications.map(medication => {
-        const toDate = timestamp => {
-          if (!timestamp) return '-'
-          const date = new Date(timestamp.seconds * 1000)
-          const day = String(date.getDate()).padStart(2, '0')
-          const month = String(date.getMonth() + 1).padStart(2, '0')
-          const year = date.getFullYear()
-          return `${ day }/${ month }/${ year }`
-        }
-        const getCategoryName = id => {
-          const category = state.categories.find(category => category.id === id)
-          return category ? category.name : '-'
-        }
-        return {
-          ...medication,
-          id: medication.id,
-          category: {
-            id: medication.category,
-            name: getCategoryName(medication.category)
-          },
-          expiration_date: toDate(medication.expiration_date)
-        }
-      })
+      const getCategoryName = id => state.categories.find(category => category.id === id).name
+      return state.medications.map(medication => ({
+        ...medication,
+        id: medication.id,
+        category: {
+          id: medication.category,
+          name: getCategoryName(medication.category)
+        },
+        expiration_date: toDate(medication.expiration_date)
+      }))
     },
     medicationsByCategory: (state, getters) => category => {
       return getters.allMedications().filter(medication => medication.category.name === category)
+    },
+    archivedMedications: state => {
+      const getCategoryName = id => state.categories.find(category => category.id === id).name
+      return state.archive.map(medication => ({
+        ...medication,
+        category: {
+          id: medication.category,
+          name: getCategoryName(medication.category)
+        }
+      }))
     }
   },
 
@@ -52,6 +51,9 @@ export default new Store({
 
     bindMedications: firestoreAction(({ bindFirestoreRef }) => bindFirestoreRef('medications', db.collection('medications').orderBy('name'))),
     unbindMedications: firestoreAction(({ unbindFirestoreRef }) => unbindFirestoreRef('medications')),
+
+    bindArchive: firestoreAction(({ bindFirestoreRef }) => bindFirestoreRef('archive', db.collection('archive').orderBy('name'))),
+    unbindArchive: firestoreAction(({ unbindFirestoreRef }) => unbindFirestoreRef('archive')),
 
     // eslint-disable-next-line no-unused-vars
     addMedication: async ({ state }, newMedication) => {
@@ -88,6 +90,21 @@ export default new Store({
     deleteMedication: async ({ state }, { id, categoryId }) => {
       await db.collection('medications').doc(id).delete()
       await db.collection(`categories/${ categoryId }/medications`).doc(id).delete()
+    },
+
+    archiveMedication: async ({ dispatch }, { id, categoryId }) => {
+      const medication = (await db.collection('medications').doc(id).get()).data()
+      delete medication.expiration_date
+      medication.id = id
+      medication.updated_at = firebase.firestore.FieldValue.serverTimestamp()
+
+      dispatch('deleteMedication', { id, categoryId })
+      await db.collection('archive').doc(id).set(medication)
+    },
+
+    // eslint-disable-next-line no-unused-vars
+    deleteFromArchive: async ({ state }, id) => {
+      await db.collection('archive').doc(id).delete()
     }
   }
 })

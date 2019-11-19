@@ -8,6 +8,7 @@ import Login from '@/pages/Login'
 import Dashboard from '@/pages/Dashboard'
 import Medications from '@/pages/Dashboard/Medications'
 import Category from '@/pages/Dashboard/Category'
+import Archive from '@/pages/Dashboard/Archive'
 
 const router = new VueRouter({
   mode: 'history',
@@ -39,6 +40,11 @@ const router = new VueRouter({
           path: '/dashboard/medications/:category',
           component: Category,
           name: 'Category'
+        },
+        {
+          path: '/dashboard/archive',
+          component: Archive,
+          name: 'Archive'
         }
       ]
     }

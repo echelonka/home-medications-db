@@ -43,7 +43,10 @@ export default new Store({
     }
   },
 
-  mutations: vuexfireMutations,
+  mutations: {
+    ...vuexfireMutations,
+    setUser: (state, { email, displayName, photoURL }) => state.currentUser = {email, displayName, photoURL}
+  },
 
   actions: {
     bindCategories: firestoreAction(({ bindFirestoreRef }) => bindFirestoreRef('categories', db.collection('categories'))),
@@ -105,6 +108,12 @@ export default new Store({
     // eslint-disable-next-line no-unused-vars
     deleteFromArchive: async ({ state }, id) => {
       await db.collection('archive').doc(id).delete()
+    },
+
+    updateUser: async ({ commit }, userObject) => {
+      const currentUser = firebase.auth().currentUser
+      await currentUser.updateProfile(userObject)
+      commit('setUser', currentUser)
     }
   }
 })

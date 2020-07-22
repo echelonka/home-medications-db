@@ -9,6 +9,7 @@ import Dashboard from '@/pages/Dashboard'
 import Medications from '@/pages/Dashboard/Medications'
 import Category from '@/pages/Dashboard/Category'
 import Archive from '@/pages/Dashboard/Archive'
+import Settings from '@/pages/Dashboard/Settings'
 
 const router = new VueRouter({
   mode: 'history',
@@ -45,6 +46,11 @@ const router = new VueRouter({
           path: '/dashboard/archive',
           component: Archive,
           name: 'Archive'
+        },
+        {
+          path: '/dashboard/settings',
+          component: Settings,
+          name: 'Settings'
         }
       ]
     }

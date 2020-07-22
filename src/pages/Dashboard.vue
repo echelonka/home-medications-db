@@ -50,6 +50,12 @@
           </v-btn>
         </template>
         <v-list>
+          <v-list-item :to="{name: 'Settings'}">
+            <v-list-item-icon>
+              <v-icon>settings</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Settings</v-list-item-title>
+          </v-list-item>
           <v-list-item @click="signOut">
             <v-list-item-icon>
               <v-icon>exit_to_app</v-icon>
@@ -59,16 +65,17 @@
         </v-list>
       </v-menu>
     </v-app-bar>
-    <v-content>
+    <v-main>
       <v-container fluid>
         <router-view></router-view>
       </v-container>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 
 <script>
   import { auth } from 'firebase'
+  import { mapMutations } from 'vuex'
 
   export default {
     name: 'Dashboard',
@@ -92,7 +99,11 @@
       }
     },
     methods: {
-      signOut: () => auth().signOut()
+      ...mapMutations(['setUser']),
+      signOut() {
+        this.setUser(null)
+        auth().signOut()
+      }
     }
   }
 </script>

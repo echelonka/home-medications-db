@@ -5,8 +5,18 @@
 </template>
 
 <script>
+  import firebase from 'firebase/app'
+  import { mapMutations } from 'vuex'
+
   export default {
-    name: 'App'
+    name: 'App',
+    mounted() {
+      const currentUser = firebase.auth().currentUser
+      if (currentUser) this.setUser(currentUser)
+    },
+    methods: {
+      ...mapMutations(['setUser'])
+    }
   }
 </script>
 

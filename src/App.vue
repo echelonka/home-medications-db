@@ -1,17 +1,11 @@
-<template>
-  <v-app>
-    <router-view></router-view>
-  </v-app>
-</template>
-
-<script>
-  export default {
-    name: 'App'
-  }
+<script setup>
+import { RouterView } from 'vue-router'
+import { Toast } from 'primevue'
 </script>
 
-<style>
-  #app {
-    height: 100vh;
-  }
-</style>
+<template>
+  <main class="h-[100vh] bg-gray-100">
+    <RouterView />
+    <Toast position="bottom-center" group="bc" />
+  </main>
+</template>

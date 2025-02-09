@@ -1,39 +1,33 @@
-import Vue from 'vue'
-import vuetify from '@/plugins/vuetify'
-import Vuelidate from 'vuelidate'
-import router from '@/router'
-import store from '@/store'
-import firebase from 'firebase/app'
-import 'firebase/firestore'
-import { firestorePlugin } from 'vuefire'
-import config from '../config'
+import './assets/base.css'
+import 'primeicons/primeicons.css'
 
-import App from '@/App.vue'
-import ConfirmationDialog from '@/components/ConfirmationDialog'
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import { VueFire, VueFireAuth } from 'vuefire'
+import { firebaseApp } from '@/firebase.js'
+import PrimeVue from 'primevue/config'
+import Aura from '@primevue/themes/aura'
+import { ToastService } from 'primevue'
 
-Vue.config.productionTip = false
+const app = createApp(App)
 
-Vue.component('ConfirmationDialog', ConfirmationDialog)
-
-Vue.use(Vuelidate)
-Vue.use(firestorePlugin)
-
-export const db = firebase.initializeApp(config).firestore()
-
-firebase.auth().onAuthStateChanged(user => {
-  if (user) {
-    store.dispatch('bindCategories')
-    store.dispatch('bindMedications')
-  } else {
-    store.dispatch('unbindCategories')
-    store.dispatch('unbindMedications')
-    router.replace('/login')
-  }
-
-  new Vue({
-    router,
-    store,
-    vuetify,
-    render: h => h(App)
-  }).$mount('#app')
+app.use(VueFire, {
+  firebaseApp,
+  modules: [VueFireAuth()],
 })
+
+app.use(PrimeVue, {
+  theme: {
+    preset: Aura,
+    options: {
+      darkModeSelector: 'none',
+    },
+  },
+})
+
+app.use(ToastService)
+
+app.use(router)
+
+app.mount('#app')

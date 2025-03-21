@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app'
+import { getFirestore } from 'firebase/firestore'
 
 const {
   VITE_FIREBASE_API_KEY: apiKey,
@@ -17,3 +18,5 @@ export const firebaseApp = initializeApp({
   messagingSenderId,
   appId,
 })
+
+export const db = getFirestore(firebaseApp)

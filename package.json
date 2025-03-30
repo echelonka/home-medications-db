@@ -11,13 +11,13 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@primevue/forms": "^4.3.2",
-    "@primevue/themes": "^4.3.2",
-    "@tailwindcss/vite": "^4.0.15",
+    "@primevue/forms": "^4.3.3",
+    "@primevue/themes": "^4.3.3",
+    "@tailwindcss/vite": "^4.0.17",
     "firebase": "^11.5.0",
     "primeicons": "^7.0.0",
-    "primevue": "^4.3.2",
-    "tailwindcss": "^4.0.15",
+    "primevue": "^4.3.3",
+    "tailwindcss": "^4.0.17",
     "tailwindcss-primeui": "^0.5.1",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
@@ -28,10 +28,10 @@
     "@eslint/js": "^9.23.0",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/eslint-config-prettier": "^10.2.0",
-    "eslint": "^9.22.0",
+    "eslint": "^9.23.0",
     "eslint-plugin-vue": "^9.33.0",
     "prettier": "^3.5.3",
-    "vite": "^6.2.2",
+    "vite": "^6.2.3",
     "vite-plugin-vue-devtools": "^7.7.2"
   },
   "packageManager": "pnpm@10.2.1+sha512.398035c7bd696d0ba0b10a688ed558285329d27ea994804a52bad9167d8e3a72bcb993f9699585d3ca25779ac64949ef422757a6c31102c12ab932e5cbe5cc92"

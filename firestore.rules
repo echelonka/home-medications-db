@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Global read-only category lookup shared by all kits.
+    match /categories/{categoryId} {
+      allow read: if signedIn();
+      allow write: if false;
+
+      // Legacy duplicated medications; kept until manual cleanup.
+      match /medications/{medicationId} {
+        allow read, write: if signedIn();
+      }
+    }
+
+    match /kits/{kitId} {
+      function isKitMember(kit) {
+        return kit.ownerId == request.auth.uid || request.auth.uid in kit.members;
+      }
+
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read: if signedIn() && isKitMember(resource.data);
+      // Owner is immutable after creation.
+      allow update: if signedIn()
+        && isKitMember(resource.data)
+        && request.resource.data.ownerId == resource.data.ownerId;
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+
+      match /medications/{medicationId} {
+        function parentKit() {
+          return get(/databases/$(database)/documents/kits/$(kitId)).data;
+        }
+
+        allow read, write: if signedIn() && isKitMember(parentKit());
+      }
+    }
+
+    // Legacy collections; kept until manual cleanup.
+    match /medications/{medicationId} {
+      allow read, write: if signedIn();
+    }
+    match /archive/{medicationId} {
+      allow read, write: if signedIn();
+    }
+  }
+}
